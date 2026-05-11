@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Aula 13 — Revolução Industrial</title>
+<style>
+  :root {
+    --bg: #F4EFE6;
+    --bg-deep: #1A1814;
+    --ink: #1A1814;
+    --ink-soft: #4A4640;
+    --paper: #FBF7EF;
+    --accent: #B8862F;
+    --accent-soft: #E8C77A;
+    --line: rgba(26,24,20,0.12);
+    --correct: #2E7D4F;
+    --wrong: #B5342B;
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.5;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .app {
+    position: fixed;
+    inset: 0;
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  .progress {
+    position: absolute;
+    top: 10px; left: 12px; right: 12px;
+    height: 18px;
+    display: flex;
+    gap: 3px;
+    z-index: 50;
+    align-items: center;
+    cursor: pointer;
+  }
+  .seg {
+    flex: 1;
+    height: 3px;
+    background: rgba(26,24,20,0.12);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    transition: height 0.2s ease;
+  }
+  .seg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .seg.done::after { transform: scaleX(1); }
+  .seg.current::after { transform: scaleX(1); }
+  .seg.current { height: 4px; }
+
+  .header {
+    position: absolute;
+    top: 34px; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 40;
+    pointer-events: none;
+  }
+  .header span {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  .slides { position: absolute; inset: 0; }
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 80px 28px 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    pointer-events: none;
+    overflow-y: auto;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  .slide.prev { transform: translateX(-40px); }
+
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(28px, 8vw, 38px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  h1 em, h2 em {
+    font-style: italic;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(24px, 7vw, 32px);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin-bottom: 14px;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 20px;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+  p {
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  p + p { margin-top: 14px; }
+  .big {
+    font-family: var(--serif);
+    font-size: clamp(22px, 6.5vw, 28px);
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .quote {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.35;
+    color: var(--ink);
+    border-left: 2px solid var(--accent);
+    padding-left: 18px;
+    margin: 8px 0;
+  }
+  .number {
+    font-family: var(--serif);
+    font-size: 88px;
+    font-weight: 800;
+    line-height: 0.9;
+    color: var(--accent);
+    letter-spacing: -0.04em;
+  }
+  .label {
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  .slide.active > * {
+    animation: fadeUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards;
+  }
+  .slide.active > *:nth-child(1) { animation-delay: 0.05s; }
+  .slide.active > *:nth-child(2) { animation-delay: 0.18s; }
+  .slide.active > *:nth-child(3) { animation-delay: 0.31s; }
+  .slide.active > *:nth-child(4) { animation-delay: 0.44s; }
+  .slide.active > *:nth-child(5) { animation-delay: 0.57s; }
+  .slide.active > *:nth-child(6) { animation-delay: 0.70s; }
+  .slide.active > *:nth-child(7) { animation-delay: 0.83s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .tap-zone {
+    position: absolute;
+    top: 60px; bottom: 0;
+    width: 35%;
+    z-index: 30;
+    cursor: pointer;
+  }
+  .tap-zone.left { left: 0; }
+  .tap-zone.right { right: 0; }
+
+  .footer-hint {
+    position: absolute;
+    bottom: 18px; left: 0; right: 0;
+    text-align: center;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    opacity: 0.6;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .footer-hint .arrow {
+    display: inline-block;
+    animation: nudge 2s ease-in-out infinite;
+  }
+  @keyframes nudge {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
+  }
+
+  .illu {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto 18px;
+    display: block;
+  }
+  .illu.sm { max-width: 180px; }
+  .illu.lg { max-width: 320px; }
+  .illu svg { width: 100%; height: auto; display: block; }
+
+  .draw path, .draw line, .draw circle, .draw rect, .draw polygon, .draw polyline {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: draw 1.6s 0.3s cubic-bezier(0.5, 0, 0.2, 1) forwards;
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  .pulse-dot { animation: pulseDot 1.8s ease-in-out infinite; }
+  @keyframes pulseDot {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+
+  .smoke { animation: smoke 3s ease-in-out infinite; transform-origin: center; }
+  @keyframes smoke {
+    0%, 100% { opacity: 0.4; transform: translateY(0) scale(1); }
+    50% { opacity: 0.8; transform: translateY(-3px) scale(1.05); }
+  }
+
+  .gear-spin { animation: spin 8s linear infinite; transform-origin: center; transform-box: fill-box; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .cover {
+    background: var(--bg-deep);
+    color: var(--paper);
+  }
+  .cover h1 { color: var(--paper); }
+  .cover .eyebrow { color: var(--accent-soft); }
+  .cover p { color: rgba(251,247,239,0.7); }
+  .cover .footer-hint { color: rgba(251,247,239,0.5); }
+
+  .quiz-intro { text-align: center; }
+  .quiz-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--paper);
+    animation: popIn 0.6s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .question-num {
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .question {
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 600;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .option:active { transform: scale(0.98); }
+  .option .letter {
+    flex-shrink: 0;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 1px;
+    transition: all 0.2s ease;
+  }
+  .option.correct {
+    background: rgba(46, 125, 79, 0.08);
+    border-color: var(--correct);
+    color: var(--correct);
+  }
+  .option.correct .letter {
+    background: var(--correct);
+    color: white;
+    border-color: var(--correct);
+  }
+  .option.wrong {
+    background: rgba(181, 52, 43, 0.06);
+    border-color: var(--wrong);
+    color: var(--wrong);
+  }
+  .option.wrong .letter {
+    background: var(--wrong);
+    color: white;
+    border-color: var(--wrong);
+  }
+  .option.disabled { pointer-events: none; opacity: 0.55; }
+
+  .feedback {
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: 12px;
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.4s ease;
+  }
+  .feedback.show {
+    opacity: 1;
+    max-height: 500px;
+  }
+  .feedback.right {
+    background: rgba(46, 125, 79, 0.08);
+    color: var(--correct);
+    border: 1px solid rgba(46, 125, 79, 0.2);
+  }
+  .feedback.miss {
+    background: rgba(181, 52, 43, 0.06);
+    color: var(--ink);
+    border: 1px solid rgba(181, 52, 43, 0.2);
+  }
+  .feedback strong { font-weight: 700; }
+  .feedback .head {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 16px;
+    margin-bottom: 6px;
+    display: block;
+    font-weight: 600;
+  }
+
+  .end {
+    background: var(--bg-deep);
+    color: var(--paper);
+    text-align: center;
+  }
+  .end h2 { color: var(--paper); }
+  .end p { color: rgba(251,247,239,0.7); }
+  .end .score {
+    font-family: var(--serif);
+    font-size: 72px;
+    font-weight: 800;
+    color: var(--accent-soft);
+    line-height: 1;
+    margin: 20px 0;
+  }
+  .restart {
+    margin-top: 28px;
+    background: var(--accent);
+    color: var(--paper);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .restart:active { transform: scale(0.96); }
+
+  .slide::-webkit-scrollbar { display: none; }
+  .slide { scrollbar-width: none; }
+
+  .card-soft {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .stamp {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--paper);
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+  .stamp.dark {
+    background: var(--bg-deep);
+    color: var(--accent-soft);
+  }
+  .stamp.outline {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+  }
+
+  .pillar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .pillar-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .pillar {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .pillar svg { width: 36px; height: 36px; margin: 0 auto 6px; display: block; }
+  .pillar .name {
+    font-family: var(--serif);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .pillar .yr {
+    display: block;
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    font-size: 14px;
+  }
+  table.compare th, table.compare td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+  table.compare th {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  table.compare td.serif {
+    font-family: var(--serif);
+    font-size: 15px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="progress" id="progress"></div>
+  <div class="header">
+    <span>Aula 13</span>
+    <span id="counter">1 / 1</span>
+  </div>
+
+  <div class="slides" id="slides">
+
+    <!-- ============== 1 — CAPA ============== -->
+    <section class="slide cover active">
+      <div class="eyebrow">História · Aula 13</div>
+      <h1>Revolução <em>Industrial</em>.</h1>
+      <p style="margin-top: 16px;">A maior transformação da história humana — e por que ela ainda governa sua vida hoje.</p>
+      <div class="illu" style="margin-top: 32px;">
+        <svg viewBox="0 0 240 160" class="draw" fill="none" stroke="#E8C77A" stroke-width="1.5">
+          <!-- gráfico em foguete -->
+          <path d="M20 140 L220 140"/>
+          <path d="M20 140 L20 20"/>
+          <!-- linha plana 2000 anos -->
+          <path d="M25 130 L150 128"/>
+          <!-- subida vertiginosa -->
+          <path d="M150 128 Q175 125 185 105 Q195 70 210 28"/>
+          <!-- ponta -->
+          <circle cx="210" cy="28" r="3" fill="#E8C77A"/>
+          <!-- labels -->
+          <path d="M28 138 L28 142" stroke-dasharray="2 2"/>
+          <path d="M150 138 L150 142"/>
+          <path d="M210 138 L210 142"/>
+        </svg>
+      </div>
+      <div class="footer-hint">toque na lateral pra avançar <span class="arrow">→</span></div>
+    </section>
+
+    <!-- ============== 2 ============== -->
+    <section class="slide">
+      <p class="big">Oi.</p>
+      <p style="margin-top: 18px;">Antes de entrar no conteúdo, deixa eu te provocar com uma ideia.</p>
+      <p>Imagina um gráfico da riqueza da humanidade nos últimos <strong>2.000 anos</strong>.</p>
+    </section>
+
+    <!-- ============== 3 — gráfico explicado ============== -->
+    <section class="slide">
+      <div class="eyebrow">2 mil anos de história</div>
+      <p>Império Romano. Idade Média. Iluminismo.</p>
+      <p style="margin-top: 12px;">A linha é praticamente <strong>reta</strong>, rastejando no chão.</p>
+      <div class="illu" style="margin: 20px auto; max-width: 260px;">
+        <svg viewBox="0 0 260 100" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <path d="M15 85 L245 85"/>
+          <path d="M15 85 L15 15"/>
+          <path d="M20 78 Q60 76 100 79 Q140 77 180 80 Q210 78 230 79"/>
+          <text x="20" y="98" font-family="Georgia" font-size="9" fill="#4A4640" font-style="italic">ano 0</text>
+          <text x="200" y="98" font-family="Georgia" font-size="9" fill="#4A4640" font-style="italic">ano 1750</text>
+        </svg>
+      </div>
+      <p>Geração após geração, o filho vivia mais ou menos como o pai.</p>
+    </section>
+
+    <!-- ============== 4 — A virada ============== -->
+    <section class="slide">
+      <p>Aí, por volta de <strong>1760</strong>, na Inglaterra…</p>
+      <p class="big" style="margin-top: 14px;">A linha começa a subir.</p>
+      <div class="illu" style="margin: 18px auto; max-width: 260px;">
+        <svg viewBox="0 0 260 120" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <path d="M15 105 L245 105"/>
+          <path d="M15 105 L15 15"/>
+          <!-- linha plana e foguete -->
+          <path d="M20 98 Q80 96 140 97"/>
+          <path d="M140 97 Q165 94 180 75 Q200 40 230 20"/>
+          <circle cx="230" cy="20" r="3" fill="#B8862F"/>
+          <text x="145" y="115" font-family="Georgia" font-size="9" fill="#B8862F" font-style="italic">1760</text>
+        </svg>
+      </div>
+      <p>Devagar primeiro. Depois acelera.</p>
+      <p class="big" style="margin-top: 8px; color: var(--accent);">Depois <em>dispara vertical</em>.</p>
+    </section>
+
+    <!-- ============== 5 — o tamanho da coisa ============== -->
+    <section class="slide">
+      <p>Em pouco mais de <strong>dois séculos</strong>:</p>
+      <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; border-left: 3px solid var(--accent);">A humanidade ficou mais rica.</div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; border-left: 3px solid var(--accent);">Mais longeva.</div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; border-left: 3px solid var(--accent);">Mais conectada.</div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; border-left: 3px solid var(--accent);">Mais poderosa.</div>
+      </div>
+      <p class="big" style="margin-top: 16px;">Do que nos <em>200 mil anos</em> anteriores somados.</p>
+    </section>
+
+    <!-- ============== 6 — o evento ============== -->
+    <section class="slide">
+      <p class="big">Isso é a Revolução Industrial.</p>
+      <p style="margin-top: 16px;">E ela é, sem exagero…</p>
+      <p class="quote" style="margin-top: 12px;">…o evento mais importante da história humana depois da agricultura.</p>
+      <p style="margin-top: 14px; font-size: 14px; color: var(--ink-soft); font-style: italic;">Comparação feita pelos próprios historiadores econômicos. Só a adoção da agricultura, 10 mil anos atrás, teve impacto material parecido.</p>
+    </section>
+
+    <!-- ============== 7 — o plano da aula ============== -->
+    <section class="slide">
+      <div class="eyebrow">Plano de voo</div>
+      <p>Hoje a gente vai entender três coisas:</p>
+      <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 14px; padding: 12px; background: var(--paper); border-radius: 10px;">
+          <span style="font-family: var(--serif); font-weight: 800; color: var(--accent); font-size: 22px;">01</span>
+          <span style="font-family: var(--serif); font-size: 15px;">Por que aconteceu</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px; padding: 12px; background: var(--paper); border-radius: 10px;">
+          <span style="font-family: var(--serif); font-weight: 800; color: var(--accent); font-size: 22px;">02</span>
+          <span style="font-family: var(--serif); font-size: 15px;">Por que aconteceu <em>na Inglaterra</em></span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px; padding: 12px; background: var(--paper); border-radius: 10px;">
+          <span style="font-family: var(--serif); font-weight: 800; color: var(--accent); font-size: 22px;">03</span>
+          <span style="font-family: var(--serif); font-size: 15px;">Por que ela criou o mundo onde você vive</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 8 — a pergunta certa ============== -->
+    <section class="slide">
+      <div class="eyebrow">A pergunta que importa</div>
+      <p>Não é "o que foi a Revolução Industrial".</p>
+      <p class="big" style="margin-top: 14px;">É: por que <em>ali</em>, naquele momento?</p>
+      <p style="margin-top: 16px;">Porque entender isso é entender <strong>como saltos econômicos acontecem</strong>.</p>
+      <p>E como países e empresas <strong>ficam pra trás</strong>.</p>
+    </section>
+
+    <!-- ============== 9 — a combinação rara ============== -->
+    <section class="slide">
+      <p>A Inglaterra de 1750 tinha uma combinação rara de fatores.</p>
+      <p style="margin-top: 12px;">Nenhum deles, sozinho, explica.</p>
+      <p class="big" style="margin-top: 14px; color: var(--accent);">Mas juntos, sim.</p>
+      <div class="illu sm" style="margin: 20px auto;">
+        <svg viewBox="0 0 160 100" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- engrenagens conectadas -->
+          <circle cx="50" cy="50" r="20"/>
+          <circle cx="50" cy="50" r="6"/>
+          <path d="M50 26 L50 32 M50 68 L50 74 M26 50 L32 50 M68 50 L74 50 M33 33 L37 37 M63 63 L67 67 M33 67 L37 63 M63 37 L67 33"/>
+          <circle cx="110" cy="50" r="14"/>
+          <circle cx="110" cy="50" r="4"/>
+          <path d="M110 33 L110 37 M110 63 L110 67 M93 50 L97 50 M123 50 L127 50"/>
+        </svg>
+      </div>
+      <p>Sete fatores. Vamos um por um.</p>
+    </section>
+
+    <!-- ============== 10 — Fator 1 ============== -->
+    <section class="slide">
+      <div class="number">01</div>
+      <div class="label" style="margin-top: 8px;">Primeiro fator</div>
+      <h2 style="margin-top: 12px;">Acumulação de <em>capital</em>.</h2>
+      <p style="margin-top: 14px;">Séculos de comércio marítimo. Colônias. Domínio comercial global.</p>
+      <div class="illu" style="margin: 16px auto; max-width: 220px;">
+        <svg viewBox="0 0 220 90" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- navio -->
+          <path d="M30 60 L60 60 L55 72 L35 72 Z"/>
+          <path d="M45 60 L45 35"/>
+          <path d="M45 35 L60 50 L45 50 Z"/>
+          <!-- ondas -->
+          <path d="M20 78 Q30 74 40 78 Q50 82 60 78 Q70 74 80 78"/>
+          <!-- seta -->
+          <path d="M95 55 L130 55" stroke-dasharray="3 3"/>
+          <path d="M123 50 L130 55 L123 60"/>
+          <!-- cofre/moedas -->
+          <rect x="145" y="40" width="55" height="40" rx="3"/>
+          <circle cx="172" cy="60" r="6"/>
+          <text x="169" y="64" font-family="Georgia" font-size="9" fill="#B8862F">$</text>
+        </svg>
+      </div>
+      <p style="font-size: 14px; color: var(--ink-soft); font-style: italic;">Inclusive Companhia das Índias e o tráfico negreiro — fato desconfortável, mas histórico. Encheu os cofres da burguesia inglesa.</p>
+    </section>
+
+    <!-- ============== 11 — Fator 2 ============== -->
+    <section class="slide">
+      <div class="number">02</div>
+      <div class="label" style="margin-top: 8px;">Segundo fator</div>
+      <h2 style="margin-top: 12px;">Revolução Agrícola <em>prévia</em>.</h2>
+      <p style="margin-top: 14px;"><strong>Antes</strong> da indústria, a Inglaterra reformou o campo.</p>
+      <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;"><strong>Cercamentos</strong> (enclosures)</div>
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Rotação de culturas</div>
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Seleção de gado</div>
+      </div>
+    </section>
+
+    <!-- ============== 12 — resultado fator 2 ============== -->
+    <section class="slide">
+      <p>Resultado:</p>
+      <p class="big" style="margin-top: 12px;">Menos gente precisava trabalhar no campo pra alimentar todo mundo.</p>
+      <div class="illu" style="margin: 18px auto; max-width: 240px;">
+        <svg viewBox="0 0 240 90" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- campo -->
+          <path d="M15 70 L80 70"/>
+          <path d="M25 70 L25 55 M40 70 L40 55 M55 70 L55 55 M70 70 L70 55"/>
+          <!-- seta migração -->
+          <path d="M95 55 L150 55" stroke-dasharray="3 3"/>
+          <path d="M143 50 L150 55 L143 60"/>
+          <!-- cidade -->
+          <rect x="165" y="40" width="14" height="30"/>
+          <rect x="183" y="30" width="14" height="40"/>
+          <rect x="201" y="45" width="14" height="25"/>
+          <rect x="219" y="35" width="14" height="35"/>
+          <!-- fumaça -->
+          <circle cx="190" cy="22" r="3" class="smoke"/>
+          <circle cx="208" cy="25" r="3" class="smoke"/>
+        </svg>
+      </div>
+      <p>A mão de obra <strong>sobrou</strong>. E migrou pras cidades.</p>
+      <p style="margin-top: 8px; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--accent);">Virou operariado fabril.</p>
+    </section>
+
+    <!-- ============== 13 — Fator 3 ============== -->
+    <section class="slide">
+      <div class="number">03</div>
+      <div class="label" style="margin-top: 8px;">Terceiro fator</div>
+      <h2 style="margin-top: 12px;">Carvão e ferro <em>abundantes</em>.</h2>
+      <p style="margin-top: 14px;">Geologia favorável.</p>
+      <div class="illu" style="margin: 16px auto; max-width: 240px;">
+        <svg viewBox="0 0 240 100" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- montanha cortada -->
+          <path d="M20 90 L70 30 L120 90 Z"/>
+          <path d="M40 90 L40 70 L70 50 L100 70 L100 90"/>
+          <!-- mina/carvão -->
+          <rect x="55" y="78" width="30" height="12" fill="#1A1814"/>
+          <!-- ferro -->
+          <path d="M140 90 L190 40 L220 90 Z"/>
+          <circle cx="170" cy="70" r="4" fill="#1A1814"/>
+          <circle cx="190" cy="78" r="3" fill="#1A1814"/>
+          <text x="50" y="100" font-family="Georgia" font-size="9" fill="#4A4640">carvão</text>
+          <text x="165" y="100" font-family="Georgia" font-size="9" fill="#4A4640">ferro</text>
+        </svg>
+      </div>
+      <p>Energia barata literalmente <strong>debaixo do chão</strong>. Carvão e ferro em regiões vizinhas. Transporte barato.</p>
+    </section>
+
+    <!-- ============== 14 — Fator 4 (o decisivo) ============== -->
+    <section class="slide">
+      <div class="number">04</div>
+      <div class="label" style="margin-top: 8px;">Quarto fator (o decisivo)</div>
+      <h2 style="margin-top: 12px;">Salários altos + energia barata.</h2>
+      <p style="margin-top: 14px; font-size: 14px; color: var(--ink-soft); font-style: italic;">Tese do economista Robert Allen.</p>
+      <p style="margin-top: 14px;">A mão de obra inglesa era <strong>cara</strong>.</p>
+      <p>A energia era <strong>barata</strong>.</p>
+      <p class="big" style="margin-top: 14px; color: var(--accent);">Valia a pena substituir homem por máquina.</p>
+    </section>
+
+    <!-- ============== 15 — comparação ============== -->
+    <section class="slide">
+      <p>Pensa.</p>
+      <div class="illu" style="margin: 18px auto; max-width: 260px;">
+        <svg viewBox="0 0 260 100" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- homem caro -->
+          <circle cx="40" cy="35" r="10"/>
+          <path d="M40 45 L40 70 M40 55 L25 65 M40 55 L55 65 M40 70 L30 88 M40 70 L50 88"/>
+          <text x="22" y="98" font-family="Georgia" font-size="9" fill="#B5342B" font-style="italic">caro</text>
+          <text x="60" y="50" font-family="Georgia" font-size="16" fill="#4A4640">vs</text>
+          <!-- máquina barata -->
+          <rect x="120" y="30" width="50" height="50" rx="3"/>
+          <circle cx="135" cy="50" r="8"/>
+          <circle cx="155" cy="65" r="6"/>
+          <path d="M120 30 L130 18 L160 18 L170 30"/>
+          <circle cx="145" cy="14" r="2" class="smoke"/>
+          <text x="125" y="98" font-family="Georgia" font-size="9" fill="#2E7D4F" font-style="italic">barata</text>
+          <!-- em outros lugares -->
+          <text x="200" y="55" font-family="Georgia" font-size="11" fill="#4A4640" font-style="italic">na</text>
+          <text x="195" y="68" font-family="Georgia" font-size="11" fill="#4A4640" font-style="italic">França?</text>
+        </svg>
+      </div>
+      <p>Em outros lugares — salário baixo, energia cara — <strong>não compensava</strong>.</p>
+      <p style="margin-top: 10px; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--accent);">Por isso ali. Não em outro lugar.</p>
+    </section>
+
+    <!-- ============== 16 — Fator 5 ============== -->
+    <section class="slide">
+      <div class="number">05</div>
+      <div class="label" style="margin-top: 8px;">Quinto fator</div>
+      <h2 style="margin-top: 12px;">Instituições <em>sólidas</em>.</h2>
+      <p style="margin-top: 14px; font-size: 14px; color: var(--ink-soft); font-style: italic;">Ponto que poucos enfatizam, mas é central.</p>
+      <p style="margin-top: 14px;">Desde a <strong>Revolução Gloriosa (1688)</strong>, a Inglaterra tinha:</p>
+      <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Direito de propriedade protegido</div>
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Parlamento forte</div>
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Judiciário independente</div>
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Sistema de patentes funcional</div>
+      </div>
+    </section>
+
+    <!-- ============== 17 — por que importa ============== -->
+    <section class="slide">
+      <p>Por que isso muda tudo?</p>
+      <div style="margin-top: 14px; padding: 16px; background: var(--paper); border-radius: 12px; border-left: 3px solid var(--accent);">
+        <p style="font-size: 15px;">Quem inventava <strong>ganhava dinheiro com isso</strong>.</p>
+        <p style="font-size: 15px; margin-top: 8px;">Quem investia <strong>não tinha o rei confiscando</strong>.</p>
+      </div>
+      <p class="big" style="margin-top: 16px;">Regra do jogo confiável = gente investe e inventa.</p>
+    </section>
+
+    <!-- ============== 18 — Fator 6 ============== -->
+    <section class="slide">
+      <div class="number">06</div>
+      <div class="label" style="margin-top: 8px;">Sexto fator</div>
+      <h2 style="margin-top: 12px;">Ciência <em>aplicada</em>.</h2>
+      <div class="illu" style="margin: 16px auto; max-width: 220px;">
+        <svg viewBox="0 0 220 90" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- livro/ciência -->
+          <rect x="20" y="25" width="60" height="50" rx="2"/>
+          <path d="M50 25 L50 75"/>
+          <path d="M27 35 L45 35 M27 45 L45 45 M55 35 L73 35 M55 45 L73 45"/>
+          <!-- aperto de mão / conexão -->
+          <path d="M90 50 L130 50" stroke-dasharray="3 3"/>
+          <path d="M123 45 L130 50 L123 55"/>
+          <!-- fábrica -->
+          <rect x="140" y="40" width="60" height="35"/>
+          <path d="M150 40 L150 28 L160 28 L160 40"/>
+          <circle cx="155" cy="22" r="2" class="smoke"/>
+          <path d="M170 55 L185 55 M170 65 L185 65"/>
+        </svg>
+      </div>
+      <p>Royal Society. Engenheiros. Artesãos qualificados.</p>
+      <p class="big" style="margin-top: 12px;">Ciência conversando com indústria.</p>
+      <p style="margin-top: 8px; font-size: 14px; color: var(--ink-soft); font-style: italic;">Algo raro na época.</p>
+    </section>
+
+    <!-- ============== 19 — Fator 7 ============== -->
+    <section class="slide">
+      <div class="number">07</div>
+      <div class="label" style="margin-top: 8px;">Sétimo fator</div>
+      <h2 style="margin-top: 12px;">Mercado consumidor.</h2>
+      <p style="margin-top: 14px;">De que adianta produzir em massa se ninguém compra?</p>
+      <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Colônias compravam</div>
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Classe média interna crescia</div>
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Demanda real existia</div>
+      </div>
+    </section>
+
+    <!-- ============== 20 — pausa estratégica ============== -->
+    <section class="slide">
+      <div class="eyebrow">Pausa estratégica</div>
+      <p>Repare na lista.</p>
+      <p class="quote" style="margin-top: 14px; font-size: 18px;">Capital + mão de obra disponível + energia barata + salários altos forçando mecanização + instituições + ciência + mercado.</p>
+      <p style="margin-top: 14px;">Essa fórmula é <strong>atemporal</strong>.</p>
+    </section>
+
+    <!-- ============== 21 — atemporal ============== -->
+    <section class="slide">
+      <p>É a mesma fórmula que explica:</p>
+      <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 10px;">
+        <div class="card-soft">
+          <p style="font-family: var(--serif); font-size: 17px;">Vale do Silício.</p>
+        </div>
+        <div class="card-soft">
+          <p style="font-family: var(--serif); font-size: 17px;">A ascensão da China.</p>
+        </div>
+        <div class="card-soft">
+          <p style="font-family: var(--serif); font-size: 17px;">Qualquer salto econômico relevante.</p>
+        </div>
+      </div>
+      <p class="big" style="margin-top: 16px; color: var(--accent);">Guarda isso.</p>
+    </section>
+
+    <!-- ============== 22 — As fases ============== -->
+    <section class="slide">
+      <div class="eyebrow">Atenção</div>
+      <h2>"Revolução Industrial" no <em>singular</em> é simplificação.</h2>
+      <p style="margin-top: 14px;">Na real, foram <strong>quatro ondas</strong>.</p>
+      <div class="pillar-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="pillar">
+          <div class="name">1ª</div>
+          <span class="yr">1760–1840</span>
+        </div>
+        <div class="pillar">
+          <div class="name">2ª</div>
+          <span class="yr">1870–1914</span>
+        </div>
+        <div class="pillar">
+          <div class="name">3ª</div>
+          <span class="yr">1950–2000</span>
+        </div>
+        <div class="pillar">
+          <div class="name">4ª</div>
+          <span class="yr">2000–hoje</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 23 — 1ª revolução ============== -->
+    <section class="slide">
+      <span class="stamp">1ª Revolução · 1760–1840</span>
+      <h2 style="margin-top: 14px;">Vapor. Carvão. <em>Têxtil</em>.</h2>
+      <div class="illu" style="margin: 16px auto; max-width: 220px;">
+        <svg viewBox="0 0 220 100" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- máquina a vapor -->
+          <circle cx="60" cy="60" r="22"/>
+          <circle cx="60" cy="60" r="6"/>
+          <path d="M60 38 L60 44 M60 76 L60 82 M38 60 L44 60 M76 60 L82 60 M44 44 L48 48 M72 72 L76 76 M44 76 L48 72 M72 48 L76 44"/>
+          <!-- caldeira -->
+          <rect x="100" y="50" width="40" height="35" rx="2"/>
+          <path d="M115 50 L115 38 L125 38 L125 50"/>
+          <circle cx="120" cy="32" r="3" class="smoke"/>
+          <circle cx="125" cy="26" r="2" class="smoke"/>
+          <!-- tear -->
+          <rect x="160" y="50" width="40" height="35"/>
+          <path d="M165 55 L195 55 M165 65 L195 65 M165 75 L195 75"/>
+        </svg>
+      </div>
+      <p style="font-size: 15px;"><strong>Invenções:</strong> lançadeira volante (Kay, 1733), spinning jenny (Hargreaves, 1767), tear mecânico (Cartwright, 1785), máquina a vapor de <strong>Watt (1769)</strong>.</p>
+    </section>
+
+    <!-- ============== 24 — 1ª transformação ============== -->
+    <section class="slide">
+      <span class="stamp outline">1ª Revolução</span>
+      <p style="margin-top: 16px;"><strong>Setor líder:</strong> têxtil (algodão).</p>
+      <p style="margin-top: 12px;"><strong>Transformação:</strong></p>
+      <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; font-size: 15px;">Trabalho artesanal → <strong>fábrica</strong></div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; font-size: 15px;">Tear manual → <strong>tear mecânico</strong></div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; font-size: 15px;">Artesão → <strong>operário</strong></div>
+      </div>
+      <p style="margin-top: 14px; font-size: 14px; color: var(--ink-soft); font-style: italic;">Geografia: Manchester, Liverpool, Birmingham.</p>
+    </section>
+
+    <!-- ============== 25 — 2ª revolução ============== -->
+    <section class="slide">
+      <span class="stamp">2ª Revolução · 1870–1914</span>
+      <h2 style="margin-top: 14px;">Aço. Eletricidade. <em>Petróleo</em>.</h2>
+      <div class="illu" style="margin: 16px auto; max-width: 240px;">
+        <svg viewBox="0 0 240 90" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- lâmpada -->
+          <circle cx="40" cy="35" r="14"/>
+          <path d="M33 47 L47 47 M35 52 L45 52"/>
+          <path d="M40 25 L40 35 L35 40 L45 40 L40 35"/>
+          <!-- carro/ford -->
+          <rect x="80" y="40" width="50" height="18" rx="2"/>
+          <path d="M88 40 L95 30 L115 30 L122 40"/>
+          <circle cx="92" cy="60" r="5"/>
+          <circle cx="118" cy="60" r="5"/>
+          <!-- telefone -->
+          <rect x="160" y="30" width="30" height="40" rx="3"/>
+          <circle cx="175" cy="42" r="5"/>
+          <path d="M168 55 L182 55 M168 62 L182 62"/>
+          <!-- raio elétrico -->
+          <path d="M210 25 L205 40 L213 40 L208 60"/>
+        </svg>
+      </div>
+      <p style="font-size: 15px;"><strong>Invenções:</strong> eletricidade (Edison, Tesla), motor a combustão, telégrafo, telefone, aço barato (Bessemer), <strong>linha de montagem</strong> (Ford, 1913).</p>
+    </section>
+
+    <!-- ============== 26 — virada de liderança ============== -->
+    <section class="slide">
+      <div class="eyebrow">Aqui muda o jogo</div>
+      <p>Setores líderes: siderurgia, química, automóveis, comunicações.</p>
+      <p>Surgem: produção em massa, grandes corporações, capitalismo financeiro.</p>
+      <p class="big" style="margin-top: 14px; color: var(--accent);">E a Inglaterra perde o protagonismo.</p>
+      <div class="illu" style="margin: 14px auto; max-width: 220px;">
+        <svg viewBox="0 0 220 60" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <circle cx="35" cy="30" r="14"/>
+          <text x="22" y="34" font-family="Georgia" font-size="10" fill="#4A4640">UK</text>
+          <path d="M55 30 L85 30" stroke-dasharray="3 3"/>
+          <path d="M78 25 L85 30 L78 35"/>
+          <circle cx="115" cy="30" r="16"/>
+          <text x="100" y="34" font-family="Georgia" font-size="10" fill="#B8862F">DE</text>
+          <path d="M135 30 L160 30" stroke-dasharray="3 3"/>
+          <path d="M153 25 L160 30 L153 35"/>
+          <circle cx="190" cy="30" r="18"/>
+          <text x="175" y="34" font-family="Georgia" font-size="10" fill="#B8862F">EUA</text>
+        </svg>
+      </div>
+      <p style="font-size: 14px; color: var(--ink-soft); font-style: italic;"><strong>Alemanha e EUA assumem.</strong> Lição: liderar a fase 1 não garante liderar a fase 2.</p>
+    </section>
+
+    <!-- ============== 27 — 3ª revolução ============== -->
+    <section class="slide">
+      <span class="stamp">3ª Revolução · 1950–2000</span>
+      <h2 style="margin-top: 14px;">Eletrônica. Informática. <em>Automação</em>.</h2>
+      <div class="illu" style="margin: 18px auto; max-width: 240px;">
+        <svg viewBox="0 0 240 100" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- computador -->
+          <rect x="30" y="25" width="60" height="40" rx="2"/>
+          <path d="M40 35 L80 35 M40 42 L70 42 M40 49 L75 49"/>
+          <path d="M52 65 L52 75 L68 75 L68 65"/>
+          <path d="M40 78 L80 78"/>
+          <!-- chip/transistor -->
+          <rect x="115" y="35" width="30" height="30"/>
+          <path d="M115 42 L108 42 M115 50 L108 50 M115 58 L108 58 M152 42 L145 42 M152 50 L145 50 M152 58 L145 58"/>
+          <path d="M122 35 L122 30 M130 35 L130 30 M138 35 L138 30"/>
+          <!-- robô industrial -->
+          <rect x="175" y="55" width="40" height="20"/>
+          <path d="M195 55 L195 35 L210 30"/>
+          <circle cx="210" cy="30" r="4"/>
+        </svg>
+      </div>
+      <p style="font-size: 15px;"><strong>Invenções:</strong> transistor, computador, internet, robótica industrial.</p>
+      <p style="margin-top: 8px; font-size: 14px; color: var(--ink-soft); font-style: italic;">Geografia: EUA, Japão, depois Coreia do Sul, Taiwan.</p>
+    </section>
+
+    <!-- ============== 28 — 4ª revolução ============== -->
+    <section class="slide">
+      <span class="stamp">4ª Revolução · 2000–hoje</span>
+      <h2 style="margin-top: 14px;">IA. Biotec. Energia. <em>Robótica avançada</em>.</h2>
+      <div class="illu" style="margin: 16px auto; max-width: 220px;">
+        <svg viewBox="0 0 220 100" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- cérebro IA -->
+          <circle cx="60" cy="50" r="25"/>
+          <path d="M45 40 L55 50 L45 60 M75 40 L65 50 L75 60"/>
+          <circle cx="55" cy="50" r="2" fill="#B8862F" class="pulse-dot"/>
+          <circle cx="65" cy="50" r="2" fill="#B8862F" class="pulse-dot"/>
+          <!-- DNA -->
+          <path d="M120 25 Q135 40 120 55 Q105 70 120 85"/>
+          <path d="M140 25 Q125 40 140 55 Q155 70 140 85"/>
+          <path d="M125 32 L135 32 M122 45 L138 45 M122 60 L138 60 M125 75 L135 75"/>
+          <!-- painel solar -->
+          <rect x="170" y="40" width="35" height="25"/>
+          <path d="M178 40 L178 65 M186 40 L186 65 M194 40 L194 65 M170 48 L205 48 M170 56 L205 56"/>
+          <circle cx="187" cy="28" r="6"/>
+          <path d="M187 18 L187 22 M187 34 L187 38 M177 28 L181 28 M193 28 L197 28"/>
+        </svg>
+      </div>
+      <p class="big" style="margin-top: 4px;">Você tá dentro dela <em>em tempo real</em>.</p>
+      <p style="margin-top: 10px;">Inclusive nessa conversa. E o tabuleiro geopolítico ainda tá em disputa — <strong>EUA vs. China</strong> é, em essência, briga pela liderança dessa fase.</p>
+    </section>
+
+    <!-- ============== 29 — Lado humano ============== -->
+    <section class="slide">
+      <div class="eyebrow">Mas calma. Tem um detalhe.</div>
+      <p>A narrativa do progresso é verdadeira.</p>
+      <p class="big" style="margin-top: 14px;">Mas <em>incompleta</em>.</p>
+      <p style="margin-top: 14px;">A Revolução Industrial foi também <strong>brutal</strong> pra primeira geração que viveu ela.</p>
+    </section>
+
+    <!-- ============== 30 — custo humano ============== -->
+    <section class="slide">
+      <div class="eyebrow">O custo humano</div>
+      <p>Jornadas de <strong>14 a 16 horas</strong>.</p>
+      <p style="margin-top: 8px;">Inclusive crianças a partir de <strong>6 anos</strong>, nas minas e fábricas têxteis.</p>
+      <div class="illu sm" style="margin: 18px auto;">
+        <svg viewBox="0 0 160 80" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- relógio -->
+          <circle cx="50" cy="40" r="22"/>
+          <path d="M50 40 L50 25 M50 40 L62 48"/>
+          <path d="M50 20 L50 22 M50 58 L50 60 M30 40 L32 40 M68 40 L70 40"/>
+          <!-- criança trabalhando -->
+          <circle cx="105" cy="30" r="6"/>
+          <path d="M105 36 L105 55 M105 42 L95 50 M105 42 L115 50 M105 55 L100 70 M105 55 L110 70"/>
+          <rect x="120" y="45" width="20" height="15"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ============== 31 — Manchester ============== -->
+    <section class="slide">
+      <p>Cidades industriais com saneamento medieval e poluição cavalar.</p>
+      <p style="margin-top: 14px;">Em Manchester, no auge (1840s), a expectativa de vida da classe trabalhadora era de…</p>
+      <div style="text-align: center; margin: 20px 0;">
+        <div class="number" style="font-size: 88px;">17</div>
+        <p style="font-family: var(--serif); font-style: italic; color: var(--accent); font-size: 18px;">a 19 anos.</p>
+      </div>
+      <p class="big">Sim. Dezessete.</p>
+      <p style="margin-top: 10px; font-size: 14px; color: var(--ink-soft); font-style: italic;">Era pior do que viver no campo.</p>
+    </section>
+
+    <!-- ============== 32 — outros custos ============== -->
+    <section class="slide">
+      <div class="eyebrow">E mais</div>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+        <div class="card-soft">
+          <p style="font-family: var(--serif); font-size: 16px;">Salários de subsistência.</p>
+        </div>
+        <div class="card-soft">
+          <p style="font-family: var(--serif); font-size: 16px;">Sem direitos trabalhistas.</p>
+        </div>
+        <div class="card-soft">
+          <p style="font-family: var(--serif); font-size: 16px;">Sem aposentadoria.</p>
+        </div>
+        <div class="card-soft">
+          <p style="font-family: var(--serif); font-size: 16px;">Sem rede de proteção.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 33 — ludismo ============== -->
+    <section class="slide">
+      <p>E teve <strong>desemprego tecnológico em massa</strong>.</p>
+      <p style="margin-top: 10px;">Artesãos viraram mendigos da noite pro dia.</p>
+      <div class="illu" style="margin: 18px auto; max-width: 220px;">
+        <svg viewBox="0 0 220 100" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <!-- máquina sendo quebrada -->
+          <rect x="60" y="40" width="60" height="40"/>
+          <circle cx="80" cy="60" r="8"/>
+          <circle cx="105" cy="60" r="6"/>
+          <!-- martelo -->
+          <path d="M150 20 L170 40"/>
+          <rect x="165" y="30" width="18" height="14" rx="2"/>
+          <!-- estrelinhas de impacto -->
+          <path d="M125 35 L135 30 M125 45 L138 47 M130 25 L140 22"/>
+          <!-- caco -->
+          <path d="M55 85 L62 78 M65 88 L70 80"/>
+        </svg>
+      </div>
+      <p>Daí surgiu o <strong>movimento ludita</strong> (1811-1816).</p>
+      <p style="margin-top: 8px; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--accent);">Operários que quebravam as máquinas em protesto.</p>
+    </section>
+
+    <!-- ============== 34 — o ganho ============== -->
+    <section class="slide">
+      <div class="eyebrow">Mas no longo prazo…</div>
+      <p>Em <strong>150 anos</strong>, no Ocidente:</p>
+      <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; font-size: 15px;">Expectativa de vida mais que dobrou (~35 → 75+).</div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; font-size: 15px;">Mortalidade infantil despencou.</div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; font-size: 15px;">Alfabetização universalizou.</div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; font-size: 15px;">Trabalho infantil foi proibido.</div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; font-size: 15px;">Surgiu a <strong>classe média</strong>.</div>
+      </div>
+    </section>
+
+    <!-- ============== 35 — frase forte ============== -->
+    <section class="slide">
+      <p class="quote">Pela primeira vez na história, "o filho vive melhor que o pai" virou expectativa. Não exceção.</p>
+      <div class="illu sm" style="margin: 22px auto;">
+        <svg viewBox="0 0 160 80" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <circle cx="40" cy="30" r="8"/>
+          <path d="M40 38 L40 60"/>
+          <path d="M65 45 L95 45" stroke-dasharray="3 3"/>
+          <path d="M88 40 L95 45 L88 50"/>
+          <circle cx="120" cy="25" r="9"/>
+          <path d="M120 34 L120 65"/>
+          <path d="M120 45 L108 55 M120 45 L132 55"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ============== 36 — reflexão estratégica ============== -->
+    <section class="slide">
+      <div class="eyebrow">Reflexão estratégica</div>
+      <p>Toda revolução tecnológica tem o <strong>mesmo padrão</strong>.</p>
+      <p style="margin-top: 12px;">Cria perdedores no curto prazo.</p>
+      <p>E vencedores no longo prazo.</p>
+      <p class="big" style="margin-top: 14px;">Hoje, com IA, é a mesma coisa.</p>
+      <p style="margin-top: 12px; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--accent);">A pergunta não é "isso é bom ou ruim".</p>
+      <p style="margin-top: 8px;">A pergunta é: <strong>de que lado dessa transição eu vou estar?</strong></p>
+    </section>
+
+    <!-- ============== 37 — Consequências políticas ============== -->
+    <section class="slide">
+      <div class="eyebrow">Aqui mora o que vem nas próximas aulas</div>
+      <h2>A Revolução Industrial não mudou só a economia.</h2>
+      <p style="margin-top: 14px;">Ela criou <strong>duas novas classes sociais</strong>.</p>
+      <p style="margin-top: 8px;">E com elas, <strong>duas novas ideologias</strong> que dominariam 200 anos.</p>
+    </section>
+
+    <!-- ============== 38 — tabela burguesia/proletariado ============== -->
+    <section class="slide">
+      <div class="eyebrow">As duas classes que nascem</div>
+      <table class="compare">
+        <thead>
+          <tr><th>Classe</th><th>Quem é</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="serif"><strong>Burguesia industrial</strong></td>
+            <td>Donos das fábricas, do capital.</td>
+          </tr>
+          <tr>
+            <td class="serif"><strong>Proletariado</strong></td>
+            <td>Operários assalariados.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 14px; font-size: 14px; color: var(--ink-soft); font-style: italic;">Capital de um lado. Trabalho do outro. Aqui começa a briga.</p>
+    </section>
+
+    <!-- ============== 39 — ideologias ============== -->
+    <section class="slide">
+      <div class="eyebrow">As duas ideologias que nascem</div>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+        <div class="card-soft">
+          <div class="label" style="margin-bottom: 4px;">Da burguesia</div>
+          <p style="font-family: var(--serif); font-size: 17px;"><strong>Liberalismo econômico.</strong></p>
+          <p style="font-size: 14px; color: var(--ink-soft); margin-top: 4px;">Adam Smith, <em>A Riqueza das Nações</em> (1776).</p>
+        </div>
+        <div class="card-soft">
+          <div class="label" style="margin-bottom: 4px;">Do proletariado</div>
+          <p style="font-family: var(--serif); font-size: 17px;"><strong>Socialismo</strong> e, depois, marxismo.</p>
+          <p style="font-size: 14px; color: var(--ink-soft); margin-top: 4px;">Marx & Engels, <em>Manifesto Comunista</em> (1848).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 40 — motor dos conflitos ============== -->
+    <section class="slide">
+      <p>Esse choque entre <strong>capital e trabalho</strong>…</p>
+      <p class="big" style="margin-top: 14px; color: var(--accent);">É o motor de praticamente todos os grandes conflitos políticos dos séculos 19 e 20.</p>
+      <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 6px;">
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Revoluções de 1848</div>
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Comuna de Paris (1871)</div>
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Revolução Russa (1917)</div>
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;">Guerra Fria</div>
+      </div>
+      <p style="margin-top: 12px; font-size: 14px; color: var(--ink-soft); font-style: italic;">Tudo isso descende daqui.</p>
+    </section>
+
+    <!-- ============== 41 — As 3 lições ============== -->
+    <section class="slide">
+      <div class="eyebrow">Três lições da aula</div>
+      <h2>Pra você levar pra <em>vida</em>.</h2>
+      <div class="illu sm" style="margin: 18px auto;">
+        <svg viewBox="0 0 160 80" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <circle cx="30" cy="40" r="14"/>
+          <text x="25" y="45" font-family="Georgia" font-size="14" fill="#B8862F" font-weight="700">1</text>
+          <circle cx="80" cy="40" r="14"/>
+          <text x="75" y="45" font-family="Georgia" font-size="14" fill="#B8862F" font-weight="700">2</text>
+          <circle cx="130" cy="40" r="14"/>
+          <text x="125" y="45" font-family="Georgia" font-size="14" fill="#B8862F" font-weight="700">3</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ============== 42 — Lição 1 ============== -->
+    <section class="slide">
+      <div class="number">01</div>
+      <div class="label" style="margin-top: 8px;">Lição um</div>
+      <h2 style="margin-top: 12px;">Instituições importam mais que <em>recursos</em>.</h2>
+      <p style="margin-top: 14px;">A Inglaterra não tinha mais carvão que a China. A China tinha <strong>muito mais</strong>.</p>
+      <p class="big" style="margin-top: 14px;">Mas tinha melhores regras do jogo.</p>
+      <p style="margin-top: 12px;">Propriedade protegida. Patentes. Contratos cumpridos.</p>
+      <p style="margin-top: 12px; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--accent);">Vale pra país. Vale pra empresa. Vale pro seu projeto.</p>
+    </section>
+
+    <!-- ============== 43 — Lição 2 ============== -->
+    <section class="slide">
+      <div class="number">02</div>
+      <div class="label" style="margin-top: 8px;">Lição dois</div>
+      <h2 style="margin-top: 12px;">Liderar uma fase <em>não garante</em> liderar a próxima.</h2>
+      <p style="margin-top: 14px;">Inglaterra dominou a 1ª. Perdeu pra Alemanha e EUA na 2ª.</p>
+      <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;"><strong>Kodak</strong> inventou a câmera digital — e morreu por causa dela.</div>
+        <div style="padding: 10px 14px; background: var(--paper); border-radius: 8px; font-size: 14px;"><strong>Nokia</strong> liderava celulares — e sumiu.</div>
+      </div>
+      <p class="big" style="margin-top: 14px; color: var(--accent);">Estamos numa dessas janelas agora.</p>
+    </section>
+
+    <!-- ============== 44 — Lição 3 ============== -->
+    <section class="slide">
+      <div class="number">03</div>
+      <div class="label" style="margin-top: 8px;">Lição três</div>
+      <h2 style="margin-top: 12px;">O custo é real. Mas a transição é <em>inevitável</em>.</h2>
+      <div class="illu sm" style="margin: 18px auto;">
+        <svg viewBox="0 0 160 80" class="draw" fill="none" stroke="#B8862F" stroke-width="1.5">
+          <rect x="50" y="25" width="60" height="40"/>
+          <circle cx="70" cy="45" r="8"/>
+          <circle cx="95" cy="45" r="6"/>
+          <path d="M30 15 L45 30" stroke="#B5342B"/>
+          <rect x="40" y="10" width="14" height="10" rx="2" stroke="#B5342B"/>
+          <text x="115" y="50" font-family="Georgia" font-size="11" fill="#B5342B" font-style="italic">não</text>
+        </svg>
+      </div>
+      <p>Não adianta quebrar a máquina. Literal ou metaforicamente.</p>
+      <p class="big" style="margin-top: 14px;">Adianta entender pra onde a coisa vai…</p>
+      <p style="margin-top: 8px; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--accent);">…e se posicionar antes da curva.</p>
+    </section>
+
+    <!-- ============== 45 — RESUMÃO ============== -->
+    <section class="slide">
+      <div class="eyebrow">Resumindo</div>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; border-left: 3px solid var(--accent); font-size: 14px;">Revolução Industrial = maior aceleração da história. Comparável só à invenção da agricultura.</div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; border-left: 3px solid var(--accent); font-size: 14px;">Começou na Inglaterra (≈1760) por uma combinação rara de fatores.</div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; border-left: 3px solid var(--accent); font-size: 14px;">Veio em ondas: vapor → aço → informática → IA.</div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; border-left: 3px solid var(--accent); font-size: 14px;">Criou prosperidade no longo prazo e sofrimento no curto.</div>
+        <div style="padding: 12px 14px; background: var(--paper); border-radius: 10px; border-left: 3px solid var(--accent); font-size: 14px;">Gerou liberalismo e socialismo — tema da próxima aula.</div>
+      </div>
+    </section>
+
+    <!-- ============== 46 — gancho próxima aula ============== -->
+    <section class="slide">
+      <div class="eyebrow">Próxima aula</div>
+      <h2>Século 19, a era das <em>ideologias</em>.</h2>
+      <p style="margin-top: 14px;">Liberalismo. Socialismo. Nacionalismo.</p>
+      <p class="big" style="margin-top: 14px;">O tabuleiro político moderno sendo montado peça por peça.</p>
+      <p style="margin-top: 16px; color: var(--ink-soft);">Até lá.</p>
+    </section>
+
+    <!-- ============== 47 — INTRO QUIZ ============== -->
+    <section class="slide quiz-intro">
+      <div class="quiz-icon">?</div>
+      <div class="eyebrow" style="text-align: center;">Hora do quiz</div>
+      <h2>Bora ver o que ficou.</h2>
+      <p style="margin-top: 14px;">Seis perguntas.<br>Se errar, eu te explico na hora.</p>
+    </section>
+
+    <!-- ============== 48 — QUIZ 1 ============== -->
+    <section class="slide" data-quiz="1">
+      <div class="question-num">Pergunta 1 de 6</div>
+      <div class="question">A Revolução Industrial começou onde e, mais ou menos, quando?</div>
+      <div class="options">
+        <button class="option" data-correct="false" data-explain="A França teve revolução política em 1789, mas a industrial nasceu antes — e do outro lado do Canal.">
+          <span class="letter">A</span><span>França, em 1789.</span>
+        </button>
+        <button class="option" data-correct="true" data-explain="">
+          <span class="letter">B</span><span>Inglaterra, por volta de 1760.</span>
+        </button>
+        <button class="option" data-correct="false" data-explain="EUA assumiram a liderança só na 2ª revolução (~1870), com aço, eletricidade e linha de montagem.">
+          <span class="letter">C</span><span>Estados Unidos, em 1870.</span>
+        </button>
+      </div>
+      <div class="feedback right" data-fb="right"><span class="head">Isso aí.</span>A Revolução Industrial nasce na Inglaterra, por volta de <strong>1760</strong>. Foi ali, com aquela combinação rara de capital, mão de obra liberada do campo, carvão barato, instituições sólidas e mercado.</div>
+      <div class="feedback miss" data-fb="miss"><span class="head">Quase.</span><span data-explain-text></span><br><br><strong>A certa é a B:</strong> Inglaterra, ≈1760.</div>
+    </section>
+
+    <!-- ============== 49 — QUIZ 2 ============== -->
+    <section class="slide" data-quiz="2">
+      <div class="question-num">Pergunta 2 de 6</div>
+      <div class="question">Segundo a tese de Robert Allen, por que a industrialização nasceu <em>justamente</em> na Inglaterra?</div>
+      <div class="options">
+        <button class="option" data-correct="false" data-explain="Os ingleses não eram mais inteligentes. Tinham as condições materiais e institucionais certas — não inteligência superior.">
+          <span class="letter">A</span><span>Porque os ingleses eram mais inteligentes que outros povos.</span>
+        </button>
+        <button class="option" data-correct="false" data-explain="Inglaterra tinha boa marinha, mas Espanha, Portugal e Holanda também tiveram. Não é o fator decisivo da tese de Allen.">
+          <span class="letter">B</span><span>Porque tinham a maior marinha do mundo.</span>
+        </button>
+        <button class="option" data-correct="true" data-explain="">
+          <span class="letter">C</span><span>Porque tinham salários altos e energia barata — compensava substituir homem por máquina.</span>
+        </button>
+      </div>
+      <div class="feedback right" data-fb="right"><span class="head">Exato.</span>Essa é a tese de <strong>Allen</strong>. Mão de obra cara + carvão barato = matemática que fazia a mecanização compensar. Em outros lugares — salário baixo, energia cara — não valia a pena trocar gente por máquina.</div>
+      <div class="feedback miss" data-fb="miss"><span class="head">Quase.</span><span data-explain-text></span><br><br><strong>A certa é a C:</strong> salários altos + energia barata empurraram a Inglaterra a mecanizar antes dos outros.</div>
+    </section>
+
+    <!-- ============== 50 — QUIZ 3 ============== -->
+    <section class="slide" data-quiz="3">
+      <div class="question-num">Pergunta 3 de 6</div>
+      <div class="question">Qual setor liderou a 1ª Revolução Industrial?</div>
+      <div class="options">
+        <button class="option" data-correct="false" data-explain="Aço e siderurgia foram protagonistas da 2ª Revolução (1870-1914), com o processo Bessemer.">
+          <span class="letter">A</span><span>Siderurgia (aço).</span>
+        </button>
+        <button class="option" data-correct="true" data-explain="">
+          <span class="letter">B</span><span>Indústria têxtil (algodão).</span>
+        </button>
+        <button class="option" data-correct="false" data-explain="Automóveis vieram com Ford na 2ª Revolução, lá em 1913 — mais de um século depois do início da 1ª.">
+          <span class="letter">C</span><span>Automóveis.</span>
+        </button>
+      </div>
+      <div class="feedback right" data-fb="right"><span class="head">Mandou bem.</span>A 1ª Revolução foi a do <strong>algodão</strong>. Spinning jenny, tear mecânico, máquina a vapor de Watt — tudo aplicado primeiro na indústria têxtil. Manchester virou capital disso.</div>
+      <div class="feedback miss" data-fb="miss"><span class="head">Quase.</span><span data-explain-text></span><br><br><strong>A certa é a B:</strong> têxtil (algodão) foi o setor que puxou a 1ª Revolução.</div>
+    </section>
+
+    <!-- ============== 51 — QUIZ 4 ============== -->
+    <section class="slide" data-quiz="4">
+      <div class="question-num">Pergunta 4 de 6</div>
+      <div class="question">Em Manchester, no auge da industrialização (anos 1840), qual era a expectativa de vida da classe trabalhadora?</div>
+      <div class="options">
+        <button class="option" data-correct="false" data-explain="Era muito menor. Saneamento medieval, poluição, jornadas de 14-16h, trabalho infantil — a vida do operário era brutal.">
+          <span class="letter">A</span><span>Em torno de 50 anos.</span>
+        </button>
+        <button class="option" data-correct="false" data-explain="Ainda longe. A média geral da cidade ficava em torno disso, mas a classe trabalhadora estava bem abaixo.">
+          <span class="letter">B</span><span>Em torno de 30 anos.</span>
+        </button>
+        <button class="option" data-correct="true" data-explain="">
+          <span class="letter">C</span><span>Em torno de 17 a 19 anos.</span>
+        </button>
+      </div>
+      <div class="feedback right" data-fb="right"><span class="head">Pesado, né?</span>Isso. <strong>17 a 19 anos</strong>. A média geral da cidade beirava 25-30, mas a classe trabalhadora vivia em condições piores do que no campo. O progresso veio. Mas pra primeira geração, o preço foi brutal.</div>
+      <div class="feedback miss" data-fb="miss"><span class="head">Quase.</span><span data-explain-text></span><br><br><strong>A certa é a C:</strong> 17 a 19 anos. Sim, dezessete.</div>
+    </section>
+
+    <!-- ============== 52 — QUIZ 5 ============== -->
+    <section class="slide" data-quiz="5">
+      <div class="question-num">Pergunta 5 de 6</div>
+      <div class="question">Quais foram as duas ideologias que nasceram diretamente da Revolução Industrial?</div>
+      <div class="options">
+        <button class="option" data-correct="false" data-explain="Fascismo e nazismo são fenômenos do século 20, ligados a outras causas (entreguerras, crise de 1929). Não nasceram da Revolução Industrial.">
+          <span class="letter">A</span><span>Fascismo e nazismo.</span>
+        </button>
+        <button class="option" data-correct="true" data-explain="">
+          <span class="letter">B</span><span>Liberalismo econômico e socialismo.</span>
+        </button>
+        <button class="option" data-correct="false" data-explain="Iluminismo veio antes (séc. 18), e o romantismo é movimento cultural/artístico — não a ideologia política das classes novas.">
+          <span class="letter">C</span><span>Iluminismo e romantismo.</span>
+        </button>
+      </div>
+      <div class="feedback right" data-fb="right"><span class="head">Isso.</span><strong>Liberalismo</strong> (Adam Smith, 1776) representa a burguesia industrial. <strong>Socialismo / marxismo</strong> (Marx, 1848) representa o proletariado. O choque entre essas duas é o motor de quase todo conflito político dos últimos 200 anos.</div>
+      <div class="feedback miss" data-fb="miss"><span class="head">Quase.</span><span data-explain-text></span><br><br><strong>A certa é a B:</strong> liberalismo econômico e socialismo. Capital de um lado, trabalho do outro.</div>
+    </section>
+
+    <!-- ============== 53 — QUIZ 6 ============== -->
+    <section class="slide" data-quiz="6">
+      <div class="question-num">Pergunta 6 de 6</div>
+      <div class="question">Qual a lição estratégica de Kodak e Nokia, segundo a aula?</div>
+      <div class="options">
+        <button class="option" data-correct="false" data-explain="A aula não tem nada contra empresa grande. O ponto é outro — sobre transições tecnológicas.">
+          <span class="letter">A</span><span>Que empresas grandes sempre falham.</span>
+        </button>
+        <button class="option" data-correct="true" data-explain="">
+          <span class="letter">B</span><span>Que liderar uma fase tecnológica não garante liderar a próxima.</span>
+        </button>
+        <button class="option" data-correct="false" data-explain="Pelo contrário. Kodak até inventou a câmera digital — e ainda assim afundou. Não foi por falta de inovar. Foi por não se adaptar à nova fase.">
+          <span class="letter">C</span><span>Que inovação tecnológica é desnecessária.</span>
+        </button>
+      </div>
+      <div class="feedback right" data-fb="right"><span class="head">Mandou bem.</span>Kodak liderou filme fotográfico, inventou a digital, morreu mesmo assim. Nokia liderava celulares, sumiu com a chegada do smartphone. <strong>Toda transição tecnológica é uma janela onde o líder pode cair e o azarão pode subir.</strong> Estamos numa dessas agora.</div>
+      <div class="feedback miss" data-fb="miss"><span class="head">Quase.</span><span data-explain-text></span><br><br><strong>A certa é a B:</strong> liderar uma fase não garante liderar a próxima. A Inglaterra dominou a 1ª, perdeu pra Alemanha e EUA na 2ª. Mesma lógica.</div>
+    </section>
+
+    <!-- ============== 54 — FIM ============== -->
+    <section class="slide end">
+      <div class="eyebrow" style="color: var(--accent-soft);">Fim do quiz</div>
+      <h2>Resultado</h2>
+      <div class="score" id="score">0 / 6</div>
+      <p id="endMsg">…</p>
+      <button class="restart" id="restart">Voltar ao início</button>
+    </section>
+
+  </div>
+
+  <div class="tap-zone left" id="tapLeft"></div>
+  <div class="tap-zone right" id="tapRight"></div>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  const progressEl = document.getElementById('progress');
+  const counterEl = document.getElementById('counter');
+  let current = 0;
+  let score = 0;
+  let answered = {};
+
+  // build progress segments
+  for (let i = 0; i < total; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.dataset.idx = i;
+    progressEl.appendChild(seg);
+  }
+  const segments = Array.from(progressEl.querySelectorAll('.seg'));
+
+  function update() {
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev');
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+    });
+    segments.forEach((s, i) => {
+      s.classList.remove('done', 'current');
+      if (i < current) s.classList.add('done');
+      else if (i === current) s.classList.add('current');
+    });
+    counterEl.textContent = (current + 1) + ' / ' + total;
+
+    // restart anim
+    const active = slides[current];
+    active.querySelectorAll('*').forEach(el => {
+      el.style.animation = 'none';
+      el.offsetHeight;
+      el.style.animation = '';
+    });
+
+    // if end slide -> render score
+    if (active.classList.contains('end')) {
+      renderEnd();
+    }
+  }
+
+  function go(dir) {
+    const next = current + dir;
+    if (next < 0 || next >= total) return;
+    current = next;
+    update();
+  }
+
+  function goTo(i) {
+    if (i < 0 || i >= total) return;
+    current = i;
+    update();
+  }
+
+  // tap zones
+  document.getElementById('tapLeft').addEventListener('click', () => go(-1));
+  document.getElementById('tapRight').addEventListener('click', () => go(1));
+
+  // swipe
+  let touchStartX = 0, touchStartY = 0, touchEndX = 0;
+  document.addEventListener('touchstart', (e) => {
+    if (e.target.closest('.progress') || e.target.closest('.option') || e.target.closest('.restart')) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    if (e.target.closest('.progress') || e.target.closest('.option') || e.target.closest('.restart')) return;
+    touchEndX = e.changedTouches[0].clientX;
+    const dx = touchEndX - touchStartX;
+    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+    if (Math.abs(dx) > 50 && dy < 80) {
+      if (dx < 0) go(1); else go(-1);
+    }
+  }, { passive: true });
+
+  // progress bar interactive (tap + drag)
+  let dragging = false;
+  function segFromX(x) {
+    const rect = progressEl.getBoundingClientRect();
+    const rel = Math.max(0, Math.min(rect.width, x - rect.left));
+    const idx = Math.floor((rel / rect.width) * total);
+    return Math.max(0, Math.min(total - 1, idx));
+  }
+  progressEl.addEventListener('click', (e) => {
+    goTo(segFromX(e.clientX));
+  });
+  progressEl.addEventListener('touchstart', (e) => {
+    dragging = true;
+    goTo(segFromX(e.touches[0].clientX));
+  }, { passive: true });
+  progressEl.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    goTo(segFromX(e.touches[0].clientX));
+  }, { passive: true });
+  progressEl.addEventListener('touchend', () => { dragging = false; });
+
+  // keyboard fallback
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') go(1);
+    if (e.key === 'ArrowLeft') go(-1);
+  });
+
+  // QUIZ
+  document.querySelectorAll('.slide[data-quiz]').forEach(slide => {
+    const qid = slide.dataset.quiz;
+    const opts = slide.querySelectorAll('.option');
+    const fbRight = slide.querySelector('[data-fb="right"]');
+    const fbMiss = slide.querySelector('[data-fb="miss"]');
+    const explainText = slide.querySelector('[data-explain-text]');
+
+    opts.forEach(opt => {
+      opt.addEventListener('click', () => {
+        if (answered[qid]) return;
+        answered[qid] = true;
+        const correct = opt.dataset.correct === 'true';
+        if (correct) {
+          opt.classList.add('correct');
+          fbRight.classList.add('show');
+          score++;
+        } else {
+          opt.classList.add('wrong');
+          // highlight correct one
+          opts.forEach(o => {
+            if (o.dataset.correct === 'true') o.classList.add('correct');
+          });
+          if (explainText) explainText.textContent = opt.dataset.explain || '';
+          fbMiss.classList.add('show');
+        }
+        opts.forEach(o => o.classList.add('disabled'));
+      });
+    });
+  });
+
+  function renderEnd() {
+    const totalQ = document.querySelectorAll('.slide[data-quiz]').length;
+    document.getElementById('score').textContent = score + ' / ' + totalQ;
+    const pct = score / totalQ;
+    let msg;
+    if (pct === 1) msg = 'Cravou tudo. Tá pronto pra próxima aula.';
+    else if (pct >= 0.66) msg = 'Boa. Conceito principal ficou. Volta nos pontos que escaparam.';
+    else if (pct >= 0.33) msg = 'Pegou o essencial. Vale revisar antes de seguir.';
+    else msg = 'Tranquilo. Volta na aula com calma — esse conteúdo abre a cabeça pro resto do curso.';
+    document.getElementById('endMsg').textContent = msg;
+  }
+
+  document.getElementById('restart').addEventListener('click', () => {
+    score = 0;
+    answered = {};
+    document.querySelectorAll('.option').forEach(o => {
+      o.classList.remove('correct', 'wrong', 'disabled');
+    });
+    document.querySelectorAll('.feedback').forEach(f => f.classList.remove('show'));
+    goTo(0);
+  });
+
+  update();
+</script>
+
+</body>
+</html>
